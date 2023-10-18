@@ -1,0 +1,121 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:jsf="http://xmlns.jcp.org/jsf">
+
+    <h:head>
+
+    </h:head>
+    <h:body>
+        <p:menu>
+            <p:menuitem value="Home" outcome="index"/>
+            <p:menuitem/>
+        </p:menu>
+        <f:view locale="DE">
+
+        <p:panel header="Fahrtenbuch" footer="Fahrtenbuch by MADDDDDDIN">
+
+            <h:form id="form">
+
+
+                <p:growl id="msgs" showDetail="true"/>
+                <p:growl id="growl" life="2000" />
+
+                <p:dataTable id="fahrten" var="fahrt" value="#{fahrtenView.fahrten}" editable="true" style="margin-bottom:20px">
+
+                    <p:ajax event="rowEdit" listener="#{fahrtenView.onRowEdit}" update=":form:msgs"/>
+                    <p:ajax event="rowEditCancel" listener="#{fahrtenView.onRowCancel}" update=":form:msgs"/>
+
+                    <p:column headerText="Id" style="text-align: center;">
+                        <p:outputLabel value="#{fahrt.id}"/>
+                    </p:column>
+
+                    <p:column headerText="KFZ-Kennzeichen" style="text-align: center;">
+                        <p:cellEditor>
+                            <f:facet name="output"><p:outputLabel value="#{fahrt.carPlate}"/></f:facet>
+                            <f:facet name="input"><p:inputText value="#{fahrt.carPlate}"/></f:facet>
+                        </p:cellEditor>
+                    </p:column>
+
+                    <p:column headerText="Datum" style="text-align: center;">
+                        <p:cellEditor>
+                            <f:facet name="output">
+                                <p:outputLabel value="#{fahrt.date}">
+                                    <!-- TODO: figure out why this needs GMT+2!?-->
+                                    <f:convertDateTime pattern="dd.MM.yyyy" timeZone="GMT+2"/>
+                                </p:outputLabel>
+                            </f:facet>
+                            <f:facet name="input"><p:datePicker value="#{fahrt.date}"/></f:facet>
+                        </p:cellEditor>
+                    </p:column>
+
+                    <p:column headerText="Abfahrtszeit" style="text-align: center;">
+                        <p:cellEditor>
+                            <f:facet name="output">
+                                <p:outputLabel value="#{fahrt.depTime}">
+                                    <f:convertDateTime pattern="HH:mm" timeZone="GMT+1"/>
+                                </p:outputLabel>
+                            </f:facet>
+                            <f:facet name="input"><p:datePicker timeOnly="true" value="#{fahrt.depTime}"/></f:facet>
+                        </p:cellEditor>
+                    </p:column>
+
+                    <p:column headerText="Ankunftszeit" style="text-align: center;">
+                        <p:cellEditor>
+                            <f:facet name="output">
+                                <p:outputLabel value="#{fahrt.arrTime}">
+                                    <f:convertDateTime pattern="HH:mm" timeZone="GMT+1"/>
+                                </p:outputLabel>
+                            </f:facet>
+                            <f:facet name="input"><p:datePicker timeOnly="true" value="#{fahrt.arrTime}"/></f:facet>
+                        </p:cellEditor>
+                    </p:column>
+                    <p:column headerText="gefahrene Kilometer" style="text-align: center;">
+                        <p:cellEditor>
+                            <f:facet name="output"><p:outputLabel value="#{fahrt.riddenKM}"/></f:facet>
+                            <f:facet name="input"><p:inputNumber decimalPlaces="2" minValue="0" value="#{fahrt.riddenKM}" label="Kennzeichen"/></f:facet>
+                        </p:cellEditor>
+                    </p:column>
+                    <p:column headerText="Stehzeit" style="text-align: center;">
+                        <p:cellEditor>
+                            <f:facet name="output"><p:outputLabel value="#{fahrt.timeStoodInMs}"/></f:facet>
+                            <f:facet name="input"><p:inputNumber value="#{fahrt.timeStoodInMs}"/></f:facet>
+                        </p:cellEditor>
+                    </p:column>
+                    <p:column style="width:32px">
+                        <p:rowEditor/>
+                    </p:column>
+                    <p:column>
+                        <p:commandButton action="#{fahrtenView.deleteFahrt(fahrt)}" update="@all" icon="pi pi-trash" style="background-color: red; border-color: red"/>
+                    </p:column>
+                </p:dataTable>
+
+                <p:commandButton value="Neue Fahrt" onclick="PF('creationDialog').show()" styleClass="ui-priority-primary" icon="pi pi-plus"/>
+            </h:form>
+        </p:panel>
+        </f:view>
+
+        <p:dialog id="creationDialog" widgetVar="creationDialog" header="Neue Fahrt" closable="true">
+            <h:form>
+                <p:panelGrid columns="2" style="width: 450px;">
+                    <p:outputLabel value="KFZ-Kennzeichen"/>
+                    <p:inputText id="plateInp" widgetVar="plateInp" value="#{fahrtenView.newFahrt.carPlate}" />
+                    <p:outputLabel value="Datum" />
+                    <p:datePicker id="dateInp" widgetVar="dateInp" value="#{fahrtenView.newFahrt.date}"/>
+                    <p:outputLabel value="Abfahrtszeit" />
+                    <p:datePicker timeOnly="true" value="#{fahrtenView.newFahrt.depTime}"/>
+                    <p:outputLabel value="Ankunftszeit" />
+                    <p:datePicker timeOnly="true" value="#{fahrtenView.newFahrt.arrTime}"/>
+                    <p:outputLabel value="Gefahrene Kilometer" />
+                    <p:inputNumber decimalPlaces="2" minValue="0" value="#{fahrtenView.newFahrt.riddenKM}"/>
+                    <p:outputLabel value="Stehzeit" />
+                    <p:inputNumber value="#{fahrtenView.newFahrt.timeStoodInMs}"/>
+                </p:panelGrid>
+                <p:divider/>
+                <p:commandButton action="#{fahrtenView.saveNewFahrt()}" process="@form" update="@all" value="Speichern" styleClass="ui-button-plain" icon="pi pi-save"/>
+            </h:form>
+        </p:dialog>
+    </h:body>
+</html>
