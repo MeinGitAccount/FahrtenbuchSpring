@@ -6,11 +6,10 @@ import jakarta.transaction.Transactional;
 import java.util.List;
 
 public interface FahrtService {
-
     @Transactional
     Fahrt save(Fahrt fahrt);
 
-    public void delete(Fahrt fahrt);
+    void delete(Fahrt fahrt);
 
     List<Fahrt> findAll();
 }

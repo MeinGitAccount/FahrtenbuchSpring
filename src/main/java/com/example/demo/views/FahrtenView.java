@@ -1,8 +1,10 @@
 package com.example.demo.views;
 
+import com.example.demo.enums.Status;
 import com.example.demo.model.Fahrt;
-import com.example.demo.repo.FahrtRepository;
+import com.example.demo.model.Kategorie;
 import com.example.demo.service.FahrtService;
+import com.example.demo.service.KategorieService;
 import jakarta.annotation.PostConstruct;
 import jakarta.faces.annotation.View;
 import jakarta.faces.application.FacesMessage;
@@ -14,8 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @Component
 @View
@@ -24,15 +24,37 @@ public class FahrtenView {
     @Autowired
     FahrtService fahrtService;
 
+    @Autowired
+    KategorieService kategorieService;
+
+    @Getter
+    private Status[] statusOptions = Status.values();
+
+    @Getter
+    @Setter
+    private Status selectedStatus = null;
+
     @Getter
     @Setter
     private List<Fahrt> fahrten;
 
     @Getter
     @Setter
+    private List<Kategorie> kategorien;
+
+    @Getter
+    @Setter
     private Fahrt newFahrt;
 
     @PostConstruct
+    private void initAll() {
+        initKategorien();
+        initFahrten();
+    }
+    public void initKategorien() {
+        kategorien = kategorieService.findAll();
+    }
+
     public void initFahrten() {
         fahrten = fahrtService.findAll();
         newFahrt = new Fahrt();
@@ -40,13 +62,13 @@ public class FahrtenView {
 
     public void onRowEdit(RowEditEvent<Fahrt> event) {
         fahrtService.save(event.getObject());
-        FacesMessage msg = new FacesMessage("Product Edited", String.valueOf(event.getObject().getId()));
+        FacesMessage msg = new FacesMessage("Edited", "Fahrt " + event.getObject().getId());
         FacesContext.getCurrentInstance().addMessage(null, msg);
         initFahrten();
     }
 
     public void onRowCancel(RowEditEvent<Fahrt> event) {
-        FacesMessage msg = new FacesMessage("Edit Cancelled", String.valueOf(event.getObject().getId()));
+        FacesMessage msg = new FacesMessage("Edit Cancelled", "Fahrt " + event.getObject().getId());
         FacesContext.getCurrentInstance().addMessage(null, msg);
     }
 
@@ -58,5 +80,16 @@ public class FahrtenView {
     public void deleteFahrt(Fahrt fahrt) {
         fahrtService.delete(fahrt);
         initFahrten();
+    }
+
+    public void addNewKategorie() {
+        Kategorie newKat = new Kategorie();
+        kategorieService.save(newKat);
+        initKategorien();
+    }
+
+    public void deleteKategorie(Kategorie kat) {
+        kategorieService.delete(kat);
+        initKategorien();
     }
 }
