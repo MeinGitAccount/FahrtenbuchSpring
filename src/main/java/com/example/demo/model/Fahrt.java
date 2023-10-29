@@ -64,11 +64,11 @@ public class Fahrt {
     public Status getStatus() {
         if(this.date == null || this.depTime == null || this.arrTime == null) return Status.NICHT_DEFINIERT;
         int dateComp = date.compareTo(LocalDate.now());
-        if(dateComp > 0) return Status.ZUKUENFTIG;
-        else if (dateComp < 0) return Status.ABSOLVIERT;
+        if(dateComp > 0 || dateComp == 0 && depTime.compareTo(LocalTime.now()) > 0) return Status.ZUKUENFTIG;                           //zukuenftig falls Datum hoeher als heutiges Datum, oder heutiges Datum und Abfahrtszeit liegt in der Zukunft
+        if(dateComp == 0 && depTime.compareTo(LocalTime.now()) <= 0 && arrTime.compareTo(LocalTime.now()) > 0) return Status.AUF_FAHRT; //Auf Fahrt falls heutiges Datum, Abfahrtszeit kleiner gleich jetziger Zeit und Ankunftszeit liegt in der Zukunft
+        else if (dateComp < 0 || dateComp == 0 && arrTime.compareTo(LocalTime.now()) < 0) return Status.ABSOLVIERT;                     //absolviert falls Datum in der Vergangenheit, oder heutiges Datum und Ankunftszeit liegt in der Vergangenheit
 
         return Status.NICHT_DEFINIERT;
-        //if(depTime.compareTo(LocalTime.now()) > 1 && arrTIme)
     }
 
     @Override
