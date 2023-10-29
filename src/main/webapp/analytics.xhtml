@@ -7,8 +7,18 @@
 
     <ui:define name="content">
         <f:view locale="DE">
-            <p:panel header="Analytics (Geschäftsführung)">
+            <p:panel id="kmProSth" header="Analytics (Geschäftsführung)">
                 <h:form id="form">
+                    <p:commandButton action="#{analyticsView.reload()}" update="kmProSth" process="@form" styleClass="ui-priority-primary" icon="pi pi-refresh"/>
+
+                    <p:datePicker title="Anfang" view="month" pattern="MM.yyyy" value="#{analyticsView.beginning}" yearNavigator="true" />
+                    <p:datePicker title="Anfang" view="month" pattern="MM.yyyy" value="#{analyticsView.end}" yearNavigator="true"/>
+
+                    <p:selectOneButton value="#{analyticsView.choice}" immediate="true">
+                        <f:selectItem itemLabel="Monat" itemValue="Monat"/>
+                        <f:selectItem itemLabel="Jahr" itemValue="Jahr"/>
+                    </p:selectOneButton>
+
                     <p:lineChart id="chartline" model="#{analyticsView.lineModel}" style="width: 100%; height: 100%;" />
                 </h:form>
             </p:panel>
