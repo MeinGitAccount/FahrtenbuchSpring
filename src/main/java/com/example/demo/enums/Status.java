@@ -3,7 +3,8 @@ package com.example.demo.enums;
 public enum Status {
     ABSOLVIERT ("Absolviert"),
     AUF_FAHRT ("Auf Fahrt"),
-    ZUKUENFTIG ("Zukünftig")
+    ZUKUENFTIG ("Zukünftig"),
+    NICHT_DEFINIERT ("")
     ;
 
     private final String label;

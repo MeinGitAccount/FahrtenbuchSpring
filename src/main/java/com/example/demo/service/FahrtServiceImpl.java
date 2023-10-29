@@ -26,5 +26,6 @@ public class FahrtServiceImpl implements FahrtService {
     @Override
     public List<Fahrt> findAll() {
         return repository.findAll();
+
     }
 }

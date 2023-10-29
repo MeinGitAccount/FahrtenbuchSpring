@@ -28,7 +28,7 @@ public class FahrtenView {
     KategorieService kategorieService;
 
     @Getter
-    private Status[] statusOptions = Status.values();
+    private final Status[] statusOptions = Status.values();
 
     @Getter
     @Setter
@@ -46,18 +46,18 @@ public class FahrtenView {
     @Setter
     private Fahrt newFahrt;
 
+
     @PostConstruct
-    private void initAll() {
+    public void initAll() {
         initKategorien();
         initFahrten();
     }
-    public void initKategorien() {
-        kategorien = kategorieService.findAll();
-    }
-
     public void initFahrten() {
         fahrten = fahrtService.findAll();
         newFahrt = new Fahrt();
+    }
+    public void initKategorien() {
+        kategorien = kategorieService.findAll();
     }
 
     public void onRowEdit(RowEditEvent<Fahrt> event) {
@@ -81,7 +81,16 @@ public class FahrtenView {
         fahrtService.delete(fahrt);
         initFahrten();
     }
-
+    public void onRowEditKat(RowEditEvent<Kategorie> event) {
+        kategorieService.save(event.getObject());
+        FacesMessage msg = new FacesMessage("Edited", "Kategorie " + event.getObject().getId());
+        FacesContext.getCurrentInstance().addMessage(null, msg);
+        initKategorien();
+    }
+    public void onRowCancelKat(RowEditEvent<Kategorie> event) {
+        FacesMessage msg = new FacesMessage("Edit Cancelled", "Kategorie " + event.getObject().getId());
+        FacesContext.getCurrentInstance().addMessage(null, msg);
+    }
     public void addNewKategorie() {
         Kategorie newKat = new Kategorie();
         kategorieService.save(newKat);

@@ -5,25 +5,21 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.Proxy;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.time.*;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Entity
 @NoArgsConstructor
 @NamedEntityGraph(
-        name = "Fahrt.katlist",
+        name = "categories",
         attributeNodes=@NamedAttributeNode("categories")
 )
 public class Fahrt {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Getter
     private Integer id;
 
@@ -34,52 +30,56 @@ public class Fahrt {
 
     @Getter
     @Setter
-    private Date date;
+    private LocalDate date;
 
     @Getter
     @Setter
-    private Date depTime;
+    private LocalTime depTime;
 
     @Getter
     @Setter
-    private Date arrTime;
+    private LocalTime arrTime;
 
     @Getter
     @Setter
-    private Double riddenKM;
+    private Integer riddenKM;
 
     @Getter
     @Setter
-    private Duration timeStood = Duration.ZERO;
+    private LocalTime timeStood = LocalTime.MIN;
 
     @Getter
     @Setter
-    @OneToMany(targetEntity = Kategorie.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<Kategorie> categories = new ArrayList<>();
+    @ManyToMany(targetEntity = Kategorie.class, fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "Fahrt_Kategorie",
+            joinColumns = @JoinColumn(name = "fahrt_id"),
+            inverseJoinColumns = @JoinColumn(name = "kategorie_id")
+    )
+    private Set<Kategorie> categories = new HashSet<>();
 
-    public long getTsHours() {
-        return this.timeStood.toHours();
+    public String getCategoriesAsString() {
+        return categories.stream().map(Object::toString).collect(Collectors.joining(","));
     }
-
-    public void setTsHours(long hours) {
-        timeStood = timeStood.minusHours(timeStood.toHours());
-        this.timeStood = timeStood.plusHours(hours);
-    }
-
-    public long getTsMinutes() {
-        return this.timeStood.toMinutesPart();
-    }
-
-    public void setTsMinutes(long minutes) {
-        timeStood = timeStood.minusMinutes(timeStood.toMinutesPart());
-        this.timeStood = timeStood.plusMinutes(minutes);
-    }
-
     public Status getStatus() {
-        int compVal = date.toInstant().compareTo(Instant.now().truncatedTo(ChronoUnit.DAYS));
-        if(compVal > 0) return Status.ZUKUENFTIG;
-        else if (compVal < 0) return Status.ABSOLVIERT;
-        return Status.AUF_FAHRT;
+        if(this.date == null || this.depTime == null || this.arrTime == null) return Status.NICHT_DEFINIERT;
+        int dateComp = date.compareTo(LocalDate.now());
+        if(dateComp > 0) return Status.ZUKUENFTIG;
+        else if (dateComp < 0) return Status.ABSOLVIERT;
+
+        return Status.NICHT_DEFINIERT;
+        //if(depTime.compareTo(LocalTime.now()) > 1 && arrTIme)
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        return Objects.equals(id, ((Fahrt) o).getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return id;
+    }
 }
