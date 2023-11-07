@@ -1,6 +1,7 @@
 package com.example.demo.model;
 
 import com.example.demo.enums.Status;
+import com.example.demo.enums.Wiederholung;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -50,6 +51,14 @@ public class Fahrt {
 
     @Getter
     @Setter
+    private Wiederholung repetition;
+
+    @Getter
+    @Setter
+    private Integer numberOfRepetitions;
+
+    @Getter
+    @Setter
     @ManyToMany(targetEntity = Kategorie.class, fetch = FetchType.EAGER)
     @JoinTable(
             name = "Fahrt_Kategorie",
@@ -64,9 +73,9 @@ public class Fahrt {
     public Status getStatus() {
         if(this.date == null || this.depTime == null || this.arrTime == null) return Status.NICHT_DEFINIERT;
         int dateComp = date.compareTo(LocalDate.now());
-        if(dateComp > 0 || dateComp == 0 && depTime.compareTo(LocalTime.now()) > 0) return Status.ZUKUENFTIG;                           //zukuenftig falls Datum hoeher als heutiges Datum, oder heutiges Datum und Abfahrtszeit liegt in der Zukunft
-        if(dateComp == 0 && depTime.compareTo(LocalTime.now()) <= 0 && arrTime.compareTo(LocalTime.now()) > 0) return Status.AUF_FAHRT; //Auf Fahrt falls heutiges Datum, Abfahrtszeit kleiner gleich jetziger Zeit und Ankunftszeit liegt in der Zukunft
-        else if (dateComp < 0 || dateComp == 0 && arrTime.compareTo(LocalTime.now()) < 0) return Status.ABSOLVIERT;                     //absolviert falls Datum in der Vergangenheit, oder heutiges Datum und Ankunftszeit liegt in der Vergangenheit
+        if(dateComp > 0 || dateComp == 0 && depTime.compareTo(LocalTime.now()) > 0) return Status.ZUKUENFTIG;                                   //zukuenftig falls Datum hoeher als heutiges Datum, oder heutiges Datum und Abfahrtszeit liegt in der Zukunft
+        else if(dateComp == 0 && depTime.compareTo(LocalTime.now()) <= 0 && arrTime.compareTo(LocalTime.now()) > 0) return Status.AUF_FAHRT;    //Auf Fahrt falls heutiges Datum, Abfahrtszeit kleiner gleich jetziger Zeit und Ankunftszeit liegt in der Zukunft
+        else if (dateComp < 0 || dateComp == 0 && arrTime.compareTo(LocalTime.now()) < 0) return Status.ABSOLVIERT;                             //absolviert falls Datum in der Vergangenheit, oder heutiges Datum und Ankunftszeit liegt in der Vergangenheit
 
         return Status.NICHT_DEFINIERT;
     }

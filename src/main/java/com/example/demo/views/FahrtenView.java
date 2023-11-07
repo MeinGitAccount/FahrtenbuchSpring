@@ -1,9 +1,11 @@
 package com.example.demo.views;
 
 import com.example.demo.enums.Status;
+import com.example.demo.enums.Wiederholung;
 import com.example.demo.model.Fahrt;
 import com.example.demo.model.Kategorie;
 import com.example.demo.service.FahrtService;
+import com.example.demo.service.FahrtServiceImpl;
 import com.example.demo.service.KategorieService;
 import jakarta.annotation.PostConstruct;
 import jakarta.faces.annotation.View;
@@ -32,6 +34,14 @@ public class FahrtenView {
 
     @Getter
     @Setter
+    private Wiederholung repetition;
+
+    @Getter
+    @Setter
+    private int numberOfRepetitions;
+
+    @Getter
+    @Setter
     private Status selectedStatus = null;
 
     @Getter
@@ -46,7 +56,6 @@ public class FahrtenView {
     @Setter
     private Fahrt newFahrt;
 
-
     @PostConstruct
     public void initAll() {
         initKategorien();
@@ -55,6 +64,7 @@ public class FahrtenView {
     public void initFahrten() {
         fahrten = fahrtService.findAll();
         newFahrt = new Fahrt();
+
     }
     public void initKategorien() {
         kategorien = kategorieService.findAll();
@@ -74,7 +84,34 @@ public class FahrtenView {
 
     public void saveNewFahrt() {
         fahrtService.save(newFahrt);
+        Fahrt fahrt = newFahrt;
         initFahrten();
+        if(fahrt.getNumberOfRepetitions() > 0/* && newFahrt.getRepetition() != Wiederholung.NICHT_DEFINIERT*/) {
+            //if(newFahrt.getRepetition() == Wiederholung.WOECHENTLICH){
+            repetitionWeekly(fahrt);
+            /*while (fahrt.getNumberOfRepetitions() > 0) {
+                fahrt.setDate(fahrt.getDate().plusDays(7));
+                fahrt.setNumberOfRepetitions(fahrt.getNumberOfRepetitions() - 1);
+                fahrtService.save(fahrt);
+
+            }*/
+            /*for(int i=1; i <= fahrt.getNumberOfRepetitions(); i++){
+                newFahrt = fahrt;
+                newFahrt.setDate(fahrt.getDate().plusDays(7*i));
+                newFahrt.setNumberOfRepetitions(fahrt.getNumberOfRepetitions() - 1*i);
+                fahrtService.save(newFahrt);
+                initFahrten();
+            }*/
+            // }
+        }
+
+    }
+
+    public void repetitionWeekly(Fahrt fahrt){
+        newFahrt = fahrt;
+        newFahrt.setDate(fahrt.getDate().plusDays(7));
+        newFahrt.setNumberOfRepetitions(fahrt.getNumberOfRepetitions() - 1);
+        saveNewFahrt();
     }
 
     public void deleteFahrt(Fahrt fahrt) {

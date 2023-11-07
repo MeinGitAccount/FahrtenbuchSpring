@@ -114,6 +114,15 @@
                     <p:outputLabel value="Gefahrene Kilometer" />
                     <p:inputNumber minValue="0" value="#{fahrtenView.newFahrt.riddenKM}"/>
                     <p:outputLabel value="Stehzeit" />
+                    <p:outputLabel value=" " />
+                    <p:outputLabel value="Wiederholung" />
+                    <p:selectOneRadio id="wiederholungInp" value="#{fahrtenView.newFahrt.repetition}">
+                        <f:selectItem itemLabel="wöchentlich" itemValue="WOECHENTLICH" />
+                        <f:selectItem itemLabel="monatlich" itemValue="MONATLICH" />
+                        <f:selectItem itemLabel="jährlich" itemValue="JAEHRLICH" />
+                    </p:selectOneRadio>
+                    <p:outputLabel value="Anzahl der Wiederholungen" />
+                    <p:inputNumber minValue="0" value="#{fahrtenView.newFahrt.numberOfRepetitions}"/>
                 </p:panelGrid>
                 <p:divider/>
                 <p:commandButton action="#{fahrtenView.saveNewFahrt()}" process="@form" update="@all" value="Speichern" styleClass="ui-button-plain" icon="pi pi-save" style="text-align: center"/>
