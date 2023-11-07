@@ -5,7 +5,6 @@ import com.example.demo.enums.Wiederholung;
 import com.example.demo.model.Fahrt;
 import com.example.demo.model.Kategorie;
 import com.example.demo.service.FahrtService;
-import com.example.demo.service.FahrtServiceImpl;
 import com.example.demo.service.KategorieService;
 import jakarta.annotation.PostConstruct;
 import jakarta.faces.annotation.View;
@@ -84,32 +83,46 @@ public class FahrtenView {
 
     public void saveNewFahrt() {
         fahrtService.save(newFahrt);
-        Fahrt fahrt = newFahrt;
-        initFahrten();
-        if(fahrt.getNumberOfRepetitions() > 0/* && newFahrt.getRepetition() != Wiederholung.NICHT_DEFINIERT*/) {
-            //if(newFahrt.getRepetition() == Wiederholung.WOECHENTLICH){
-            repetitionWeekly(fahrt);
-            /*while (fahrt.getNumberOfRepetitions() > 0) {
-                fahrt.setDate(fahrt.getDate().plusDays(7));
-                fahrt.setNumberOfRepetitions(fahrt.getNumberOfRepetitions() - 1);
-                fahrtService.save(fahrt);
-
-            }*/
-            /*for(int i=1; i <= fahrt.getNumberOfRepetitions(); i++){
-                newFahrt = fahrt;
-                newFahrt.setDate(fahrt.getDate().plusDays(7*i));
-                newFahrt.setNumberOfRepetitions(fahrt.getNumberOfRepetitions() - 1*i);
-                fahrtService.save(newFahrt);
-                initFahrten();
-            }*/
-            // }
+        if(newFahrt.getNumberOfRepetitions() > 1 && newFahrt.getRepetition() != Wiederholung.NICHT_DEFINIERT) {
+            Fahrt fahrt = new Fahrt();
+            fahrt = setAdditionalFahrt(fahrt);
+            if(fahrt.getRepetition() == Wiederholung.WOECHENTLICH) repetitionWeekly(fahrt);
+            else if(fahrt.getRepetition() == Wiederholung.MONATLICH) repetitionMonthly(fahrt);
+            else if(fahrt.getRepetition() == Wiederholung.JAEHRLICH) repetitionYearly(fahrt);
         }
+        initFahrten();
+    }
 
+    public Fahrt setAdditionalFahrt(Fahrt fahrt){
+        fahrt.setCarPlate(newFahrt.getCarPlate());
+        fahrt.setDate(newFahrt.getDate());
+        fahrt.setDepTime(newFahrt.getDepTime());
+        fahrt.setArrTime(newFahrt.getArrTime());
+        fahrt.setRiddenKM(newFahrt.getRiddenKM());
+        fahrt.setTimeStood(newFahrt.getTimeStood());
+        //fahrt.setCategories(newFahrt.getCategories());
+        fahrt.setRepetition(newFahrt.getRepetition());
+        fahrt.setNumberOfRepetitions(newFahrt.getNumberOfRepetitions());
+        return fahrt;
     }
 
     public void repetitionWeekly(Fahrt fahrt){
         newFahrt = fahrt;
         newFahrt.setDate(fahrt.getDate().plusDays(7));
+        newFahrt.setNumberOfRepetitions(fahrt.getNumberOfRepetitions() - 1);
+        saveNewFahrt();
+    }
+
+    public void repetitionMonthly(Fahrt fahrt){                 //Monthly is equivalent to 4 weeks, because otherwise it would not be the same weekday
+        newFahrt = fahrt;
+        newFahrt.setDate(fahrt.getDate().plusWeeks(4));
+        newFahrt.setNumberOfRepetitions(fahrt.getNumberOfRepetitions() - 1);
+        saveNewFahrt();
+    }
+
+    public void repetitionYearly(Fahrt fahrt){
+        newFahrt = fahrt;
+        newFahrt.setDate(fahrt.getDate().plusYears(1));
         newFahrt.setNumberOfRepetitions(fahrt.getNumberOfRepetitions() - 1);
         saveNewFahrt();
     }
